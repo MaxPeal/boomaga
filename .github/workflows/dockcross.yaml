@@ -1,4 +1,4 @@
-#name: CMake
+#name: dockcross CMake
 
 on:
   push:
@@ -33,10 +33,14 @@ env:
 jobs:
   dockcross:
     name: ${{ matrix.arch_name }}
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        arch_name: [android-arm64, android-arm, linux-armv6, linux-armv7, linux-arm64, manylinux2010-x64]
+        arch_name: [linux-x64, manylinux2010-x64]
+        # get all archs with: cd /tmp && curl https://raw.githubusercontent.com/dockcross/dockcross/master/Makefile -o dockcross-Makefile && for image in $(make -f dockcross-Makefile display_images); do   echo -n " $image,"; done
+        #arch_name: [linux-x64, android-arm64, android-arm, linux-armv6, linux-armv7, linux-arm64, manylinux2010-x64]
+        #arch_name: [android-arm, android-arm64, android-x86, android-x86_64, linux-x86, linux-x64, linux-x64-clang, linux-arm64, linux-arm64-musl, linux-arm64-full, linux-armv5, linux-armv5-musl, linux-m68k-uclibc, linux-s390x, linux-x64-tinycc, linux-armv6, linux-armv6-lts, linux-armv6-musl, linux-arm64-lts, linux-armv7l-musl, linux-armv7, linux-armv7a, linux-armv7-lts, linux-x86_64-full, linux-mips, linux-ppc64le, linux-riscv64, linux-riscv32, linux-xtensa-uclibc, web-wasi, windows-static-x86, windows-static-x64, windows-static-x64-posix, windows-armv7, windows-shared-x86, windows-shared-x64, windows-shared-x64-posix, windows-arm64, manylinux2014-x64, manylinux2014-x86, manylinux2014-aarch64, web-wasm]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v1
         with:
@@ -54,48 +58,3 @@ jobs:
         # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
         # run: ctest -C ${{env.BUILD_TYPE}}
         #run: src/boomaga/tests/boomaga_test
-
-  build-and-test:
-    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Install Deps
-        # eatmydata: This package contains a small LD_PRELOAD library (libeatmydata) and a couple of helper utilities 
-        # designed to transparently disable fsync and friends (like open(O_SYNC)). This has two side-effects: 
-        # making software that writes data safely to disk a lot quicker and making this software no longer crash safe.
-      run: |
-        sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install -yy eatmydata
-        export eatmydata=/usr/bin/eatmydata ; # export sudo="/usr/bin/sudo eatmydata"
-        sudo $eatmydata apt-get -y --no-upgrade install \
-                          build-essential pkg-config cmake \
-                          qtbase5-dev qttools5-dev-tools qttools5-dev \
-                          libcups2-dev libsnappy-dev libpoppler-cpp-dev \
-                          ghostscript
-        #
-        # sudo $eatmydata apt-get -y install qtbase5-dev qttools5-dev-tools qttools5-dev
-        # sudo $eatmydata apt-get -y install libcups2-dev libsnappy-dev libpoppler-cpp-dev
-        # sudo $eatmydata apt-get -y install ghostscript
-    - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: |
-        export eatmydata=/usr/bin/eatmydata
-        $eatmydata cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_TESTS=${{env.BUILD_TESTS}}
-    - name: Build
-      # Build your program with the given configuration
-      # run: make -j8
-      run: $eatmydata cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-
-
-    - name: Test
-      working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.  
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      # run: ctest -C ${{env.BUILD_TYPE}}
-      run: src/boomaga/tests/boomaga_test
-      
