@@ -22,13 +22,12 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install Deps
-      run: |
         # eatmydata: This package contains a small LD_PRELOAD library (libeatmydata) and a couple of helper utilities 
         # designed to transparently disable fsync and friends (like open(O_SYNC)). This has two side-effects: 
         # making software that writes data safely to disk a lot quicker and making this software no longer crash safe.
-        #
-        sudo apt update && DEBIAN_FRONTEND=noninteractive apt install -yy eatmydata
-        export $eatmydata=/usr/bin/eatmydata
+      run: |
+        apt update && DEBIAN_FRONTEND=noninteractive apt install -yy eatmydata
+        export $eatmydata=/usr/bin/eatmydata; # export $sudo="/usr/bin/sudo eatmydata"
         sudo $eatmydata apt-get -y install build-essential pkg-config cmake
         sudo $eatmydata apt-get -y install qtbase5-dev qttools5-dev-tools qttools5-dev
         sudo $eatmydata apt-get -y install libcups2-dev libsnappy-dev libpoppler-cpp-dev
