@@ -26,9 +26,9 @@ jobs:
         # designed to transparently disable fsync and friends (like open(O_SYNC)). This has two side-effects: 
         # making software that writes data safely to disk a lot quicker and making this software no longer crash safe.
       run: |
-        sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install -yy eatmydata
+        sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install -o APT::Install-Suggests=0 -o APT::Install-Recommends=0 -yy eatmydata
         export eatmydata=/usr/bin/eatmydata ; # export sudo="/usr/bin/sudo eatmydata"
-        sudo $eatmydata apt-get -y --no-upgrade install \
+        sudo $eatmydata apt-get -y --no-upgrade -o APT::Install-Suggests=0 -o APT::Install-Recommends=0 install \
                           build-essential pkg-config cmake \
                           qtbase5-dev qttools5-dev-tools qttools5-dev \
                           libcups2-dev libsnappy-dev libpoppler-cpp-dev \
