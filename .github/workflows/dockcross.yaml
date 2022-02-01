@@ -52,11 +52,12 @@ jobs:
         run: |
           sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install -o APT::Install-Suggests=0 -o APT::Install-Recommends=0 -yy eatmydata
           export eatmydata=/usr/bin/eatmydata ; # export sudo="/usr/bin/sudo eatmydata"
-          sudo $eatmydata apt-get -y --no-upgrade -o APT::Install-Suggests=0 -o APT::Install-Recommends=0 install \
+          sudo $eatmydata apt-get -y --no-upgrade -o APT::Install-Suggests=1 -o APT::Install-Recommends=1 install \
                           build-essential pkg-config cmake \
                           qtbase5-dev qttools5-dev-tools qttools5-dev \
                           libcups2-dev libsnappy-dev libpoppler-cpp-dev \
-                          ghostscript
+                          ghostscript \
+                          libcups2-dev
       - name: setup dockcross
         run: docker run --rm dockcross/${{ matrix.arch_name }} > ./dockcross-${{ matrix.arch_name }}; chmod +x ./dockcross-${{ matrix.arch_name }}
       - name: configure
